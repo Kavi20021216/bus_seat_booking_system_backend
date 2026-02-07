@@ -76,6 +76,7 @@ dotenv.config();
 const app = express();
 
 app.use(bodyParser.json());
+
 app.use(cors());
 
 /* ================= JWT MIDDLEWARE ================= */
