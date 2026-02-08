@@ -133,3 +133,24 @@ export async function cancelBooking(req, res) {
     res.status(500).json({ message: "Failed to cancel booking" });
   }
 }
+
+export async function getBookingsByDate(req, res) {
+  try {
+    const dateParam = req.params.date; // e.g., "2026-02-09"
+    
+    // Start and end of the day
+    const start = new Date(dateParam);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(dateParam);
+    end.setHours(23, 59, 59, 999);
+
+    const bookings = await Booking.find({
+      createdAt: { $gte: start, $lte: end } // MongoDB date filter
+    });
+
+    res.json(bookings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to get daily report" });
+  }
+}
