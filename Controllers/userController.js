@@ -69,12 +69,51 @@ export function isAdmin(req) {
 	return req.user && req.user.role === "admin";
 }
 
-/* ================= GET USERS (ADMIN) ================= */
-export async function getUsers(req, res) {
-	if (!isAdmin(req)) {
-		return res.status(403).json({ message: "Admins only" });
-	}
 
-	const users = await User.find();
-	res.json(users);
+export async function getAllUsers(req, res) {
+  try {
+    if (!isAdmin(req)) return res.status(403).json({ message: "Admins only" });
+    const users = await User.find().sort({ createdAt: -1 });
+    res.status(200).json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+}
+
+
+export async function deleteUser(req, res) {
+  try {
+   
+    if (!isAdmin(req)) return res.status(403).json({ message: "Admins only" });
+
+    const email = req.params.email;
+
+   
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+   
+    await User.deleteOne({ email });
+
+    res.json({ message: "User deleted successfully", email });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to delete user" });
+  }
+}
+
+export async function updateUser(req, res) {
+  const email = req.params.email;
+  const data = req.body;
+
+  try {
+    const update = await User.findOneAndUpdate({ email }, data, { new: true });
+    if (!update) return res.status(404).json({ message: "User not found" });
+
+    res.json({ message: "User updated successfully" });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Failed to update user" });
+  }
 }

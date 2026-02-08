@@ -3,7 +3,9 @@ import {
 	createUser,
 	loginUser,
 	getUser,
-	getUsers,
+	getAllUsers,
+	deleteUser,
+	updateUser,
 } from "../Controllers/userController.js";
 
 const router = express.Router();
@@ -11,6 +13,8 @@ const router = express.Router();
 router.post("/register", createUser);
 router.post("/login", loginUser);
 router.get("/me", getUser);
-router.get("/all", getUsers); // admin only
+router.get("/all", getAllUsers); 
+router.delete("/:email",deleteUser); 
+router.put("/:email",updateUser)
 
 export default router;

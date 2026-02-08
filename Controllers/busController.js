@@ -1,50 +1,3 @@
-// import Bus from "../models/Bus.js";
-// import { isAdmin } from "./userController.js";
-
-// /**
-//  * Get all buses
-//  * Accessible to all users
-//  */
-// export async function getBuses(req, res) {
-// 	try {
-// 		const buses = await Bus.find().sort({ date: 1, time: 1 });
-// 		return res.json(buses);
-// 	} catch (error) {
-// 		console.error("Error fetching buses:", error);
-// 		return res.status(500).json({ message: "Failed to fetch buses" });
-// 	}
-// }
-
-// /**
-//  * Add a new bus (Admin only)
-//  */
-// export async function addBus(req, res) {
-// 	if (!isAdmin(req)) {
-// 		return res.status(403).json({ message: "Access denied. Admins only." });
-// 	}
-
-// 	const { route, date, time, seats } = req.body;
-
-// 	try {
-// 		const bus = new Bus({
-// 			route,
-// 			date,
-// 			time,
-// 			seats
-// 		});
-
-// 		const savedBus = await bus.save();
-
-// 		return res.json({
-// 			message: "Bus schedule added successfully",
-// 			bus: savedBus
-// 		});
-// 	} catch (error) {
-// 		console.error("Error adding bus:", error);
-// 		return res.status(500).json({ message: "Failed to add bus" });
-// 	}
-// }
-
 import Bus from "../models/Bus.js";
 import { isAdmin } from "./userController.js";
 
@@ -68,14 +21,16 @@ export async function addBus(req, res) {
 	}
 }
 
-/* ================= GET ALL BUSES ================= */
+/* ================= GET ALL BUSES (NO PAGINATION) ================= */
 export async function getBuses(req, res) {
 	try {
-		const buses = await Bus.find().sort({ date: 1, time: 1 });
-		res.json(buses);
+		const buses = await Bus.find().sort({ createdAt: -1 });
+		return res.json(buses);
 	} catch (error) {
 		console.error("Error fetching buses:", error);
-		res.status(500).json({ message: "Failed to fetch buses" });
+		return res.status(500).json({
+			message: "Failed to fetch buses",
+		});
 	}
 }
 
@@ -102,12 +57,9 @@ export async function updateBus(req, res) {
 	try {
 		const busId = req.params.busId;
 		const data = req.body;
-
-		// prevent overwriting busId
 		data.busId = busId;
 
 		await Bus.updateOne({ busId }, data);
-
 		res.json({ message: "Bus updated successfully" });
 	} catch (error) {
 		console.error("Error updating bus:", error);
@@ -124,7 +76,6 @@ export async function deleteBus(req, res) {
 	try {
 		const busId = req.params.busId;
 		await Bus.deleteOne({ busId });
-
 		res.json({ message: "Bus deleted successfully" });
 	} catch (error) {
 		console.error("Error deleting bus:", error);
@@ -132,8 +83,7 @@ export async function deleteBus(req, res) {
 	}
 }
 
-
-// ================= SEARCH BUSES =================
+/* ================= SEARCH BUSES ================= */
 export async function searchBuses(req, res) {
 	try {
 		const { from, to, date } = req.query;
@@ -141,7 +91,7 @@ export async function searchBuses(req, res) {
 		const buses = await Bus.find({
 			"route.from": { $regex: `^${from}$`, $options: "i" },
 			"route.to": { $regex: `^${to}$`, $options: "i" },
-			date: date
+			date: date,
 		});
 
 		res.json(buses);

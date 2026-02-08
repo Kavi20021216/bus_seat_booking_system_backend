@@ -56,7 +56,7 @@ const busSchema = new mongoose.Schema(
     },
     busImage: {
       type: String,
-      required: false,
+      default: "https://png.pngtree.com/png-clipart/20191120/original/pngtree-outline-user-icon-png-image_5045523.jpg"
     },
   },
   { timestamps: true }
